@@ -1,0 +1,56 @@
+.shipping-costs-section {
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.shipping-costs-section h2, .shipping-options h3 {
+    font-size: 1.5rem;
+    margin-bottom: 15px;
+}
+
+.shipping-option-card {
+    display: flex;
+    align-items: center;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    padding: 10px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.shipping-option-card:hover {
+    background-color: #f8f9fa;
+}
+
+.shipping-option-card.selected {
+    border-color: #007bff;
+    background-color: #e9f5ff;
+}
+
+.shipping-label {
+    width: 100%;
+}
+
+.shipping-card-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+.service-name {
+    font-weight: bold;
+}
+
+.cost {
+    color: #28a745;
+}
+
+.delivery-time {
+    font-size: 0.9rem;
+    color: #6c757d;
+}

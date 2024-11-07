@@ -1,0 +1,106 @@
+/* MyOrder.css */
+
+/* Container utama */
+.myorder-page-container {
+    background-color: #ffffff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Judul Halaman */
+.myorder-page-title {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #D3790B;
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+/* Gaya Tabel */
+.table {
+    border-collapse: separate;
+    border-spacing: 0 10px;
+}
+
+.table th {
+    background-color: #D3790B;
+    color: #ffffff;
+    font-weight: bold;
+    border: none;
+    padding: 12px;
+    text-align: center;
+}
+
+.table td {
+    background-color: #ffffff;
+    border: 1px solid #D3790B;
+    padding: 12px;
+    text-align: center;
+    vertical-align: middle;
+    font-size: 0.95rem;
+    color: #333;
+}
+
+.table-hover tbody tr:hover td {
+    background-color: #FFF3E0;
+}
+
+/* Status Order dengan Warna */
+.text-warning {
+    color: #FFA726 !important;
+    font-weight: bold;
+}
+
+.text-success {
+    color: #43A047 !important;
+    font-weight: bold;
+}
+
+.text-primary {
+    color: #1E88E5 !important;
+    font-weight: bold;
+}
+
+.text-danger {
+    color: #D32F2F !important;
+    font-weight: bold;
+}
+
+/* Tombol Aksi */
+.btn {
+    font-weight: bold;
+    border-radius: 20px;
+    padding: 8px 20px;
+    transition: background-color 0.3s ease;
+}
+
+.btn-info {
+    background-color: #FFA726;
+    border: none;
+    color: #ffffff;
+}
+
+.btn-info:hover {
+    background-color: #FB8C00;
+}
+
+.btn-success {
+    background-color: #D3790B;
+    border: none;
+    color: #ffffff;
+}
+
+.btn-success:hover {
+    background-color: #E65100;
+}
+
+/* Alert */
+.alert-info {
+    background-color: #FFF3E0;
+    color: #D3790B;
+    border: 1px solid #D3790B;
+    font-weight: bold;
+    border-radius: 8px;
+    text-align: center;
+}

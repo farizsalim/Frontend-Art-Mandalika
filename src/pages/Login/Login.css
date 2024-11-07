@@ -1,0 +1,122 @@
+/* Login.css */
+
+.login-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #f8f8f8;
+}
+
+/* Spinner */
+.spinner {
+    border: 8px solid #f3f3f3; /* Warna dasar abu-abu */
+    border-top: 8px solid #C15A01; /* Warna utama spinner */
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Login Box */
+.login-box {
+    display: flex;
+    width: 800px;
+    height: 500px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.login-welcome {
+    flex: 1;
+    background-color: #C15A01;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 40px;
+    text-align: center;
+}
+
+.login-welcome h2 {
+    font-size: 24px;
+    font-weight: bold;
+}
+
+.login-welcome p {
+    margin-top: 10px;
+    font-size: 16px;
+    line-height: 1.6;
+}
+
+.login-button {
+    margin-top: 20px;
+    padding: 10px 20px;
+    background-color: transparent;
+    border: 2px solid white;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    border-radius: 20px;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.login-button:hover {
+    background-color: white;
+    color: #C15A01;
+}
+
+.login-form {
+    flex: 1;
+    background-color: white;
+    padding: 40px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.login-form h2 {
+    font-size: 24px;
+    font-weight: bold;
+    color: #333;
+}
+
+.login-input {
+    width: 100%;
+    padding: 12px;
+    margin: 10px 0;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 16px;
+    color: #333;
+}
+
+.signup-button {
+    margin-top: 20px;
+    padding: 12px;
+    width: 100%;
+    background-color: #C15A01;
+    border: none;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: background-color 0.3s;
+}
+
+.signup-button:hover {
+    background-color: #a04801;
+}
+
+.welcome-image {
+    width: 100px; /* Sesuaikan ukuran gambar */
+    margin-bottom: 15px; /* Jarak antara gambar dan teks */
+}

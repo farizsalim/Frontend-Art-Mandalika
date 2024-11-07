@@ -1,0 +1,71 @@
+/* StepByStep.css */
+
+.step-by-step-container {
+    padding: 40px 20px;
+    background-color: #C15A01;
+    text-align: center;
+}
+
+.step-title {
+    color: white;
+    font-size: 28px;
+    font-weight: bold;
+    padding-bottom: 20px;
+}
+
+.step-grid {
+    display: flex;
+    justify-content: center;
+    gap: 50px;
+}
+
+.step-item {
+    position: relative;
+    width: 250px;
+    height: 400px;
+    overflow: hidden;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    transition: transform 0.3s ease; /* Efek zoom ringan pada hover */
+}
+
+.step-item:hover {
+    transform: scale(1.05); /* Zoom gambar sedikit saat di-hover */
+}
+
+.step-image {
+    filter: brightness(150%);
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 8px;
+    transition: opacity 0.3s ease; /* Transisi untuk opacity gambar */
+}
+
+.step-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.3); /* Overlay hitam semi-transparan */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 1;
+    color: white;
+    text-align: center;
+    padding: 10px;
+    transition: background-color 0.3s ease; /* Transisi untuk perubahan opacity pada hover */
+}
+
+.step-item:hover .step-overlay {
+    background-color: rgba(0, 0, 0, 0.6); /* Lebih gelap saat di-hover */
+}
+
+.step-text {
+    font-size: 18px;
+    font-weight: bold;
+    line-height: 1.4;
+    padding: 0 10px;
+}

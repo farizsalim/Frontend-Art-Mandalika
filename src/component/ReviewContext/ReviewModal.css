@@ -1,0 +1,57 @@
+.review-modal-header {
+    background-color: #f8f9fa;
+    border-bottom: 2px solid #dee2e6;
+}
+
+.review-modal-title {
+    font-weight: bold;
+    color: #343a40;
+}
+
+.review-modal-body {
+    padding: 20px;
+}
+
+.review-textarea {
+    border-radius: 8px;
+    border: 1px solid #ced4da;
+    padding: 10px;
+    font-size: 1rem;
+}
+
+.rating-stars {
+    display: flex;
+    gap: 5px;
+    cursor: pointer;
+    font-size: 1.5rem;
+    color: #ffc107;
+}
+
+.star {
+    color: #ced4da;
+    transition: color 0.3s;
+}
+
+.star.filled {
+    color: #ffc107;
+}
+
+.review-modal-footer {
+    border-top: 2px solid #dee2e6;
+    background-color: #f8f9fa;
+    padding: 10px 20px;
+}
+
+.review-modal-footer .btn-primary {
+    background-color: #343a40;
+    border-color: #343a40;
+}
+
+.review-modal-footer .btn-primary:hover {
+    background-color: #495057;
+    border-color: #495057;
+}
+
+.modal-dialog {
+    max-width: 350px;
+}

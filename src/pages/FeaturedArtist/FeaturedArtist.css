@@ -1,0 +1,61 @@
+/* FeaturedArtists.css */
+
+.featured-artists-container {
+    padding: 40px 20px;
+    text-align: center;
+}
+
+.featured-title {
+    color: #C15A01;
+    font-size: 28px;
+    font-weight: bold;
+    margin-bottom: 30px;
+}
+
+.artists-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, 300px); /* Ukuran tetap 300px per kolom */
+    gap: 20px;
+    justify-content: center; /* Memastikan grid berada di tengah */
+}
+
+.artist-item {
+    width: 300px; /* Ukuran tetap untuk item */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    background-color: white; /* Background putih untuk kontras */
+}
+
+.artist-image {
+    width: 100%;
+    height: 250px;
+    object-fit: cover;
+}
+
+.artist-name {
+    background-color: #C15A01;
+    color: white;
+    font-weight: bold;
+    padding: 10px;
+    width: 100%;
+    text-align: center;
+}
+
+.load-more-button {
+    background-color: #e0e0e0;
+    border: none;
+    border-radius: 5px;
+    padding: 10px 20px;
+    cursor: pointer;
+    margin-top: 20px;
+    transition: background-color 0.3s;
+}
+
+.load-more-button:hover {
+    background-color: #C15A01;
+    color: #fff;
+}

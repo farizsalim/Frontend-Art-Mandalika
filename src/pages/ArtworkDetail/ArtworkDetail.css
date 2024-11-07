@@ -1,0 +1,162 @@
+.artwork-detail-container {
+    display: flex;
+    gap: 40px;
+    padding: 30px;
+    background-color: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    max-width: 1200px;
+    margin: 40px auto;
+}
+
+.artwork-image-container {
+    flex: 1;
+    text-align: center;
+}
+
+.artwork-detail-image {
+    width: 100%;
+    max-width: 500px;
+    height: auto;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: transform 0.3s ease;
+}
+
+.artwork-detail-image:hover {
+    transform: scale(1.05);
+}
+
+.click-to-zoom {
+    font-size: 0.9rem;
+    color: #777;
+    margin-top: 5px;
+    text-align: center;
+}
+
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal-content {
+    max-width: 90%;
+    max-height: 90%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.zoomed-image {
+    width: auto;
+    height: 90%;
+    border-radius: 10px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+}
+
+.artwork-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.artwork-title {
+    font-size: 2.5rem;
+    color: #C15A01;
+    font-weight: bold;
+}
+
+.artwork-category {
+    background-color: #FFE4C4;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 15px;
+    font-size: 0.9rem;
+    color: #C15A01;
+    margin-bottom: 10px;
+}
+
+.artwork-description,
+.artwork-uploader,
+.artwork-creator,
+.artwork-date {
+    font-size: 1rem;
+    color: #333;
+    line-height: 1.5;
+}
+
+.select-size {
+    margin-top: 15px;
+}
+
+.select-size label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.select-size select {
+    width: 100%;
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #ddd;
+    outline: none;
+    background-color: #fff;
+    cursor: pointer;
+    transition: border 0.3s;
+}
+
+.select-size select:hover {
+    border: 1px solid #C15A01;
+}
+
+.price-display {
+    font-size: 1.2rem;
+    color: #444;
+    font-weight: bold;
+    margin-top: 15px;
+}
+
+.art-request-inputs input,
+.art-request-inputs textarea {
+    width: 100%;
+    padding: 10px;
+    margin-top: 5px;
+    margin-bottom: 15px;
+    border-radius: 5px;
+    border: 1px solid #ddd;
+    outline: none;
+    transition: border 0.3s;
+}
+
+.art-request-inputs input:focus,
+.art-request-inputs textarea:focus {
+    border: 1px solid #C15A01;
+}
+
+.request-art-button {
+    background-color: #C15A01;
+    color: #fff;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: bold;
+    transition: background-color 0.3s, transform 0.2s;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.request-art-button:hover {
+    background-color: #B14A01;
+    transform: translateY(-2px);
+}

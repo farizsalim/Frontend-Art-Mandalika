@@ -1,0 +1,36 @@
+.order-management {
+    padding: 20px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+}
+
+.order-management h2 {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.order-management-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: auto;
+    background-color: #ffffff;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.order-management-table th,
+.order-management-table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: center;
+}
+
+.order-management-table th {
+    background-color: #f2f2f2;
+    font-weight: bold;
+}
+
+.order-management-table select {
+    padding: 5px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+}

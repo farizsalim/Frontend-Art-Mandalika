@@ -1,0 +1,72 @@
+.artwork-upload-container {
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+}
+
+.artwork-upload h2 {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.artwork-upload-group {
+    margin-bottom: 15px;
+}
+
+.artwork-upload-input,
+.artwork-upload-textarea,
+.artwork-upload-file-input {
+    width: 100%;
+    padding: 8px;
+    margin-top: 5px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+}
+
+.artwork-upload-textarea {
+    resize: vertical;
+}
+
+.artwork-upload-size-inputs {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.artwork-upload-size-input {
+    flex: 1;
+    padding: 6px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.artwork-upload-image-preview {
+    margin-top: 15px;
+    text-align: center;
+}
+
+.artwork-upload-preview-img {
+    max-width: auto;
+    height: 300px;
+    object-fit: cover;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.artwork-upload-add-size-btn,
+.artwork-upload-submit-btn {
+    display: block;
+    margin: 10px auto;
+    padding: 10px 20px;
+    border: none;
+    background-color: #007bff;
+    color: white;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.artwork-upload-add-size-btn:hover,
+.artwork-upload-submit-btn:hover {
+    background-color: #0056b3;
+}

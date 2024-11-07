@@ -1,0 +1,54 @@
+.home-base {
+    padding-top: 0;
+    margin-top: 0;
+}
+
+.home-title {
+    color: #d97706;
+    font-size: 2.5rem;
+    font-weight: bold;
+    margin-bottom: 15px;
+    line-height: 1.2;
+}
+
+.home-description {
+    color: #8a6d3b;
+    font-size: 1.2rem;
+    line-height: 1.5;
+    margin-bottom: 20px;
+}
+
+.home-button {
+    background-color: #D3790B;
+    border: none;
+    color: #fff;
+    font-size: 2rem;
+    font-weight:600;
+    padding: 10px 20px;
+    border-radius: 10px;
+}
+
+.home-button:hover {
+    background-color: #b86c04;
+    color: #fff;
+}
+
+.home-image {
+    max-width: 100%;
+    height: auto;
+}
+.bg-orange {
+    background-color: #C15A01;
+    width: 100%;
+}
+
+.section-title {
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 15px;
+}
+
+.section-description {
+    font-size: 16px;
+    line-height: 1.5;
+}

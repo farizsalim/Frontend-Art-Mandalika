@@ -58,7 +58,7 @@ const PaymentPage = () => {
                 title: 'Payment Completed',
                 text: 'Your payment has been successfully completed!',
             }).then(() => {
-                navigate('/');
+                navigate('/myorder');
             });
         }
     }, [paymentDetails, navigate]);

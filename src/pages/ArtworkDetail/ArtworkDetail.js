@@ -8,28 +8,23 @@ const ArtworkDetail = () => {
     const { id } = useParams();
     const navigate = useNavigate();
     const [artwork, setArtwork] = useState(null);
-    const [uploaderName, setUploaderName] = useState('');
+    const [uploaderName, setUploaderName] = useState('');   
     const [creatorName, setCreatorName] = useState('');
-    const [sizes, setSizes] = useState([]);
-    const [selectedSize, setSelectedSize] = useState(null);
+    const [artworkDetails, setArtworkDetails] = useState([]);
+    const [selectedArtworkDetail, setSelectedArtworkDetail] = useState(null);
     const [price, setPrice] = useState('');
     const [isZoomed, setIsZoomed] = useState(false);
-    const [titleRequest, setTitleRequest] = useState('');
-    const [customDescription, setCustomDescription] = useState('');
 
     useEffect(() => {
         const fetchArtworkDetail = async () => {
             try {
-                // Fetch artwork data and increment view count
                 const response = await axios.get(`/artwork/data/${id}`);
                 const artworkData = response.data;
                 setArtwork(artworkData);
 
-                // Fetch sizes
-                const sizeResponse = await axios.get(`/artwork/size/${id}`);
-                setSizes(sizeResponse.data);
+                const detailsResponse = await axios.get(`/artwork/details/${id}`);
+                setArtworkDetails(detailsResponse.data);
 
-                // Fetch uploader and creator names
                 if (artworkData.ID_Uploader && artworkData.ID_Creator) {
                     const uploaderResponse = await axios.get(`/auth/users/${artworkData.ID_Uploader}`);
                     setUploaderName(uploaderResponse.data.Username);
@@ -38,7 +33,6 @@ const ArtworkDetail = () => {
                     setCreatorName(creatorResponse.data.Username);
                 }
 
-                // Increment view count
                 await axios.patch(`/artwork/data/${id}/view`);
             } catch (error) {
                 console.error('Error fetching artwork detail:', error);
@@ -48,10 +42,10 @@ const ArtworkDetail = () => {
         fetchArtworkDetail();
     }, [id]);
 
-    const handleSizeChange = (event) => {
+    const handleArtworkDetailChange = (event) => {
         const selectedId = event.target.value;
-        const selected = sizes.find(size => size.ID_Size === parseInt(selectedId));
-        setSelectedSize(selected);
+        const selected = artworkDetails.find(detail => detail.ID_Detail === parseInt(selectedId));
+        setSelectedArtworkDetail(selected);
         setPrice(selected ? selected.Price : '');
     };
 
@@ -63,50 +57,28 @@ const ArtworkDetail = () => {
         setIsZoomed(false);
     };
 
-    const handleRequestArt = async () => {
-        if (!selectedSize) {
+    const handleOrder = () => {
+        if (!selectedArtworkDetail) {
             Swal.fire({
                 icon: 'warning',
-                title: 'Select a size',
-                text: 'Please select a size before requesting.',
+                title: 'Select a detail',
+                text: 'Please select a detail before proceeding to order.',
             });
             return;
         }
-
-        try {
-            const payload = {
-                ID_Artwork: artwork.ID_Artwork,
-                ID_Size: selectedSize.ID_Size,
-                Title_Artrequest: titleRequest || artwork.Title_Artwork,
-                Custom_Description: customDescription,
-            };
-
-            console.log('Payload:', payload);
-
-            const response = await axios.post('/artrequestArtwork/request/artwork', payload, {
-                headers: {
-                    'Authorization': localStorage.getItem('Authorization'),
-                    'Content-Type': 'application/json'
-                }
-            });
-
-            Swal.fire({
-                icon: 'success',
-                title: 'Success',
-                text: 'Art request has been successfully created.',
-            }).then(() => {
-                const ID_ArtRequest = response.data.ID_ArtRequest;
-                navigate(`/orders/${ID_ArtRequest}`);
-            });
-        } catch (error) {
-            console.error('Error creating art request:', error);
-
-            Swal.fire({
-                icon: 'error',
-                title: 'Error',
-                text: error.response && error.response.data ? error.response.data.message : 'Failed to create art request.',
-            });
-        }
+    
+        // Log data yang akan dikirim
+        console.log('Navigating to Order Page with data:', {
+            artwork,
+            artworkDetail: selectedArtworkDetail,
+        });
+    
+        navigate('/order', {
+            state: {
+                artwork,
+                artworkDetail: selectedArtworkDetail,
+            },
+        });
     };
 
     if (!artwork) {
@@ -149,46 +121,29 @@ const ArtworkDetail = () => {
                 <p className="artwork-date">Created at: <span>{new Date(artwork.created_at).toLocaleDateString()}</span></p>
                 <p className="artwork-views">Views: <span>{artwork.ViewCount}</span></p>
 
-                {sizes.length > 0 && (
-                    <div className="select-size">
-                        <label htmlFor="size-select">Choose a size:</label>
-                        <select id="size-select" onChange={handleSizeChange} defaultValue="">
-                            <option value="" disabled>Select a size</option>
-                            {sizes.map(size => (
-                                <option key={size.ID_Size} value={size.ID_Size}>
-                                    {size.Width}cm x {size.Height}cm - {size.Weight}kg
+                {artworkDetails.length > 0 && (
+                    <div className="select-artwork-detail">
+                        <label htmlFor="artwork-detail-select">Choose a Detail:</label>
+                        <select id="artwork-detail-select" onChange={handleArtworkDetailChange} defaultValue="">
+                            <option value="" disabled>Select a Detail</option>
+                            {artworkDetails.map(detail => (
+                                <option key={detail.ID_Detail} value={detail.ID_Detail}>
+                                    {detail.Width}cm x {detail.Height}cm - {detail.Weight}kg &nbsp;&nbsp; Media: {detail.Media}
                                 </option>
                             ))}
                         </select>
                     </div>
                 )}
 
-                {selectedSize && (
+                {selectedArtworkDetail && (
                     <div className="price-display">
                         <p>Price: <strong>Rp {parseFloat(price).toLocaleString('id-ID')}</strong></p>
                     </div>
                 )}
 
-                <div className="art-request-inputs">
-                    <label htmlFor="title-request">Custom Title (optional):</label>
-                    <input
-                        type="text"
-                        id="title-request"
-                        value={titleRequest}
-                        onChange={(e) => setTitleRequest(e.target.value)}
-                        placeholder="Enter custom title"
-                    />
-
-                    <label htmlFor="custom-description">Custom Description (optional):</label>
-                    <textarea
-                        id="custom-description"
-                        value={customDescription}
-                        onChange={(e) => setCustomDescription(e.target.value)}
-                        placeholder="Enter custom description"
-                    />
-                </div>
-
-                <button className="request-art-button" onClick={handleRequestArt}>Request This Art</button>
+                <button className="order-button" onClick={handleOrder}>
+                    Go to Order
+                </button>
             </div>
         </div>
     );

@@ -15,19 +15,13 @@ const contactData = [
         platform: "Instagram",
         icon: <FaInstagram />,
         description: "Follow us on Instagram",
-        link: "https://instagram.com/yourpage"
-    },
-    {
-        platform: "Telegram",
-        icon: <FaTelegramPlane />,
-        description: "Join our Telegram channel",
-        link: "https://t.me/yourchannel"
+        link: "https://www.instagram.com/art.mandalika/"
     },
     {
         platform: "Gmail",
         icon: <FaEnvelope />,
         description: "Email us",
-        link: "mailto:youremail@gmail.com"
+        link: "mailto:artmandalika@gmail.com"
     }
 ];
 

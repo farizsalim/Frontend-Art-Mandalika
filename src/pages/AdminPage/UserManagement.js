@@ -48,13 +48,13 @@ const UserManagement = () => {
     };
 
     const handleUpdateUserRole = async () => {
-        if (!selectedUser || !updatedRole) {
-            Swal.fire('Error', 'Please select a user and specify a role.', 'warning');
+        if (!updatedRole) {
+            Swal.fire('Error', 'Please specify a role.', 'warning');
             return;
         }
-
+    
         try {
-            await axios.patch(`/auth/users/${selectedUser.ID_User}`, { user_type: updatedRole }, {
+            await axios.patch(`/auth/users/${selectedUser.ID_User}/user-type`, { user_type: updatedRole }, {
                 headers: { 'Authorization': localStorage.getItem('Authorization') }
             });
             Swal.fire('Success', 'User role updated successfully!', 'success');
@@ -65,6 +65,11 @@ const UserManagement = () => {
             console.error('Error updating user role:', error);
             Swal.fire('Error', 'Failed to update user role. Please try again.', 'error');
         }
+    };
+
+    const closeRoleUpdateModal = () => {
+        setSelectedUser(null);
+        setUpdatedRole('');
     };
 
     return (
@@ -90,8 +95,18 @@ const UserManagement = () => {
                             <td>{user.Phone_Number}</td>
                             <td>{user.User_Type}</td>
                             <td>
-                                <button onClick={() => setSelectedUser(user)}>Update Role</button>
-                                <button onClick={() => handleDeleteUser(user.ID_User)}>Delete</button>
+                                <button
+                                    className="action-btn update-role-btn"
+                                    onClick={() => setSelectedUser(user)}
+                                >
+                                    Update Role
+                                </button>
+                                <button
+                                    className="action-btn delete-btn"
+                                    onClick={() => handleDeleteUser(user.ID_User)}
+                                >
+                                    Delete
+                                </button>
                             </td>
                         </tr>
                     ))}
@@ -99,19 +114,42 @@ const UserManagement = () => {
             </table>
 
             {selectedUser && (
-                <div className="update-role-modal">
-                    <h3>Update Role for {selectedUser.Username}</h3>
-                    <label>
-                        New Role:
-                        <select value={updatedRole} onChange={(e) => setUpdatedRole(e.target.value)}>
-                            <option value="">Select Role</option>
-                            <option value="Customer">Customer</option>
-                            <option value="Artist">Artist</option>
-                            <option value="Admin">Admin</option>
-                        </select>
-                    </label>
-                    <button onClick={handleUpdateUserRole}>Save Changes</button>
-                    <button onClick={() => setSelectedUser(null)}>Cancel</button>
+                <div className="modal">
+                    <div className="modal-content">
+                        <span className="close-btn" onClick={closeRoleUpdateModal}>
+                            &times;
+                        </span>
+                        <h3>Update Role for {selectedUser.Username}</h3>
+                        <div className="modal-body">
+                            <label>
+                                Select New Role:
+                                <select
+                                    value={updatedRole}
+                                    onChange={(e) => setUpdatedRole(e.target.value)}
+                                    className="role-select"
+                                >
+                                    <option value="">Select Role</option>
+                                    <option value="Customer">Customer</option>
+                                    <option value="Artist">Artist</option>
+                                    <option value="Admin">Admin</option>
+                                </select>
+                            </label>
+                        </div>
+                        <div className="modal-actions">
+                            <button
+                                className="save-btn"
+                                onClick={handleUpdateUserRole}
+                            >
+                                Save Changes
+                            </button>
+                            <button
+                                className="cancel-btn"
+                                onClick={closeRoleUpdateModal}
+                            >
+                                Cancel
+                            </button>
+                        </div>
+                    </div>
                 </div>
             )}
         </div>

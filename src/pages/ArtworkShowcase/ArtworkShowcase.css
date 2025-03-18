@@ -10,6 +10,29 @@
     margin-bottom: 20px;
 }
 
+.status-filter {
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.status-filter label {
+    margin-right: 10px;
+    font-weight: bold;
+    color: #C15A01; /* Match the title color */
+}
+
+.status-filter select {
+    background-color: #e0e0e0;
+    border: none;
+    border-radius: 20px;
+    padding: 8px 16px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    font-size: 16px; /* Adjust font size */
+}
+
 .category-buttons {
     display: flex;
     justify-content: center;
@@ -23,7 +46,7 @@
     border-radius: 20px;
     padding: 8px 16px;
     cursor: pointer;
-    transition: background-color 0.3s;
+    transition: background-color 0.3s ease;
 }
 
 .category-button.active,
@@ -34,65 +57,24 @@
 
 .artwork-grid {
     display: grid;
-    grid-template-columns: repeat(4, 1fr); /* Maksimal 4 kolom */
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); /* Responsive */
     gap: 15px;
     margin-bottom: 20px;
 }
 
-/* Responsive untuk ukuran layar yang lebih kecil */
-@media (max-width: 1024px) {
-    .artwork-grid {
-        grid-template-columns: repeat(3, 1fr); /* 3 kolom pada layar medium */
-    }
-}
-
-@media (max-width: 768px) {
-    .artwork-grid {
-        grid-template-columns: repeat(2, 1fr); /* 2 kolom pada layar kecil */
-    }
-}
-
-@media (max-width: 480px) {
-    .artwork-grid {
-        grid-template-columns: 1fr; /* 1 kolom pada layar sangat kecil */
-    }
-}
-
-
 .artwork-item {
-    position: relative; /* To position overlay */
-    overflow: hidden; /* Ensure that overflowing content is hidden */
-    border-radius: 8px; /* Round the corners of the item */
+    position: relative;
+    overflow: hidden;
+    border-radius: 8px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
 .artwork-item img {
+    display: block;
     width: 100%;
-    height: 200px; /* Fixed height */
-    object-fit: cover; /* Cover to maintain aspect ratio */
-    border-radius: 8px; /* Round corners of the image */
-}
-
-.artwork-overlay {
-    position: absolute; /* Position overlay on top of the image */
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent black */
-    color: #fff; /* Text color */
-    padding: 10px; /* Padding for the overlay content */
-    text-align: center; /* Center the text */
-    opacity: 0; /* Initially hidden */
-    transition: opacity 0.3s; /* Smooth transition for opacity */
-}
-
-.artwork-item:hover .artwork-overlay {
-    opacity: 1; /* Show overlay on hover */
+    height: 200px;
+    object-fit: cover;
+    border-radius: 8px;
 }
 
 .artwork-item h3 {
@@ -105,13 +87,35 @@
     font-size: 14px; /* Font size for description */
 }
 
+.artwork-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(0, 0, 0, 0.5);
+    color: #fff;
+    padding: 10px;
+    text-align: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.artwork-item:hover .artwork-overlay {
+    opacity: 1;
+}
+
 .load-more-button {
     background-color: #e0e0e0;
     border: none;
     border-radius: 5px;
     padding: 10px 20px;
     cursor: pointer;
-    transition: background-color 0.3s;
+    transition: background-color 0.3s ease;
 }
 
 .load-more-button:hover {

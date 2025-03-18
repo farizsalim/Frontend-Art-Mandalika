@@ -12,60 +12,62 @@ export const useReview = () => {
 
 export const ReviewProvider = ({ children }) => {
     const [showReviewModal, setShowReviewModal] = useState(false);
-    const [pendingReviews, setPendingReviews] = useState([]);
-    const [selectedOrderForReview, setSelectedOrderForReview] = useState(null);
+    const [completedOrders, setCompletedOrders] = useState([]);
+    const [selectedOrder, setSelectedOrder] = useState(null);
     const [reviewText, setReviewText] = useState('');
     const [rating, setRating] = useState(0);
-    const [artRequestName, setArtRequestName] = useState('');
 
-    const fetchPendingReviews = async () => {
+    const fetchOrders = async () => {
         try {
-            const response = await axios.get('/review/pending-reviews', {
+            console.log("Fetching orders...");
+            const response = await axios.get('/order/data', {
                 headers: {
                     'Authorization': localStorage.getItem('Authorization'),
                     'Content-Type': 'application/json'
                 }
             });
-    
-            if (response.data.length > 0) {
-                const enrichedReviews = await Promise.all(
-                    response.data.map(async (order) => {
-                        const artRequestResponse = await axios.get(`/artrequestArtwork/request/by-order/${order.ID_Order}`, {
-                            headers: {
-                                'Authorization': localStorage.getItem('Authorization'),
-                                'Content-Type': 'application/json'
-                            }
-                        });
-                        return { ...order, ArtRequestName: artRequestResponse.data.Title_Artrequest };
-                    })
-                );
-    
-                setPendingReviews(enrichedReviews);
-                setSelectedOrderForReview(enrichedReviews[0].ID_Order);
-                setArtRequestName(enrichedReviews[0].ArtRequestName);
-                
-                // Hanya tampilkan modal jika ada pending reviews baru
-                if (!showReviewModal) {
-                    setShowReviewModal(true);
+
+            console.log("Order Response:", response.data);
+
+            // Filter order yang sudah completed
+            const completed = response.data.filter(order => order.OrderStatus === 'completed');
+            setCompletedOrders(completed);
+
+            console.log("Completed Orders:", completed);
+
+            if (completed.length > 0) {
+                // Cek apakah ID_Order sudah ada di tabel Reviews
+                const reviewResponse = await axios.get('/review/reviews', {
+                    headers: {
+                        'Authorization': localStorage.getItem('Authorization'),
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                console.log("Review Response:", reviewResponse.data);
+
+                const reviewedOrderIds = reviewResponse.data.map(review => review.ID_Order);
+                console.log("Reviewed Order IDs:", reviewedOrderIds);
+
+                // Cek order yang belum direview
+                const newOrder = completed.find(order => !reviewedOrderIds.includes(order.ID_Order));
+
+                if (newOrder) {
+                    setSelectedOrder(newOrder); // Ambil order yang belum direview
+                    setShowReviewModal(true); // Tampilkan modal jika ada order yang completed dan belum direview
+                } else {
+                    console.log("All completed orders have been reviewed.");
                 }
             }
         } catch (error) {
-            console.error('Error fetching pending reviews:', error);
+            console.error('Error fetching orders:', error);
         }
     };
-    
-
-    useEffect(() => {
-        fetchPendingReviews();
-        const interval = setInterval(fetchPendingReviews, 30000); // Update setiap 30 detik
-
-        return () => clearInterval(interval); // Cleanup untuk menghindari memory leak
-    }, []);
 
     const handleReviewSubmit = async () => {
         try {
             const reviewPayload = {
-                ID_Order: selectedOrderForReview,
+                ID_Order: selectedOrder.ID_Order,
                 Review_Text: reviewText,
                 Rating: rating
             };
@@ -87,7 +89,7 @@ export const ReviewProvider = ({ children }) => {
             setShowReviewModal(false);
             setReviewText('');
             setRating(0);
-            setPendingReviews((prev) => prev.filter((review) => review.ID_Order !== selectedOrderForReview));
+            setCompletedOrders((prev) => prev.filter(order => order.ID_Order !== selectedOrder.ID_Order));
         } catch (error) {
             console.error('Error submitting review:', error);
             Swal.fire({
@@ -99,17 +101,22 @@ export const ReviewProvider = ({ children }) => {
         }
     };
 
+    useEffect(() => {
+        fetchOrders();
+        const interval = setInterval(fetchOrders, 30000); // Update setiap 30 detik
+
+        return () => clearInterval(interval); // Cleanup untuk menghindari memory leak
+    }, []);
+
     return (
-        <ReviewContext.Provider value={{ pendingReviews, setShowReviewModal }}>
+        <ReviewContext.Provider value={{ completedOrders }}>
             {children}
             {showReviewModal && (
                 <Modal show={showReviewModal} onHide={() => setShowReviewModal(false)} centered>
-                    <Modal.Header closeButton className="review-modal-header">
-                        <Modal.Title className="review-modal-title">
-                            Review for "<strong>{artRequestName}</strong>"
-                        </Modal.Title>
+                    <Modal.Header closeButton>
+                        <Modal.Title>Review Order ID: {selectedOrder?.ID_Order}</Modal.Title>
                     </Modal.Header>
-                    <Modal.Body className="review-modal-body">
+                    <Modal.Body>
                         <Form>
                             <Form.Group controlId="reviewText" className="mb-4">
                                 <Form.Label>Write Your Review</Form.Label>
@@ -118,8 +125,7 @@ export const ReviewProvider = ({ children }) => {
                                     rows={4}
                                     value={reviewText}
                                     onChange={(e) => setReviewText(e.target.value)}
-                                    placeholder="Share your experience with this product..."
-                                    className="review-textarea"
+                                    placeholder="Share your experience with this order..."
                                 />
                             </Form.Group>
                             <Form.Group controlId="rating" className="mb-3">
@@ -138,7 +144,7 @@ export const ReviewProvider = ({ children }) => {
                             </Form.Group>
                         </Form>
                     </Modal.Body>
-                    <Modal.Footer className="review-modal-footer">
+                    <Modal.Footer>
                         <Button variant="secondary" onClick={() => setShowReviewModal(false)}>
                             Close
                         </Button>

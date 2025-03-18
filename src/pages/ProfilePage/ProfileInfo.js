@@ -7,6 +7,7 @@ const ProfileInfo = () => {
     const [updatedUser, setUpdatedUser] = useState({});
     const [isEditMode, setIsEditMode] = useState(false);
     const [selectedFile, setSelectedFile] = useState(null);
+    const [previewImage, setPreviewImage] = useState(null);
 
     useEffect(() => {
         const fetchUserProfile = async () => {
@@ -27,7 +28,6 @@ const ProfileInfo = () => {
         fetchUserProfile();
     }, []);
 
-    // useEffect untuk memastikan updatedUser di-refresh setelah perubahan user
     useEffect(() => {
         if (user) {
             setUpdatedUser(user);
@@ -43,18 +43,20 @@ const ProfileInfo = () => {
     };
 
     const handleFileChange = (e) => {
-        setSelectedFile(e.target.files[0]);
+        const file = e.target.files[0];
+        setSelectedFile(file);
+        setPreviewImage(URL.createObjectURL(file)); // Set preview image URL
     };
 
     const handleUpdateProfile = async () => {
         const formData = new FormData();
         formData.append('phone_number', updatedUser.Phone_Number || '');
         formData.append('bio', updatedUser.Bio || '');
-    
+
         if (selectedFile) {
             formData.append('photo', selectedFile);
         }
-    
+
         try {
             const response = await axios.put(`auth/users`, formData, {
                 headers: {
@@ -68,15 +70,15 @@ const ProfileInfo = () => {
                 text: 'Profile updated successfully!',
                 confirmButtonText: 'OK'
             });
-            
-            // Update state user dengan data yang baru di-update dari state updatedUser
+
+            // Update state `user` dengan data terbaru
             setUser((prevUser) => ({
                 ...prevUser,
                 Phone_Number: updatedUser.Phone_Number,
                 Bio: updatedUser.Bio,
-                Photo: selectedFile ? URL.createObjectURL(selectedFile) : prevUser.Photo, // Jika foto diperbarui
+                Photo: selectedFile ? URL.createObjectURL(selectedFile) : prevUser.Photo,
             }));
-            
+
             setIsEditMode(false);
         } catch (error) {
             console.error('Error updating profile:', error);
@@ -88,14 +90,13 @@ const ProfileInfo = () => {
             });
         }
     };
-    
 
     return (
         <div className="profile-info">
             {user ? (
                 <div>
                     <img
-                        src={`http://localhost:8000/ARTM/images/user/${user.Photo}` || '/default-profile.png'}
+                        src={previewImage || `http://localhost:8000/ARTM/images/user/${user.Photo}` || '/default-profile.png'}
                         alt="User Profile"
                         className="img-fluid rounded-circle mb-3"
                     />

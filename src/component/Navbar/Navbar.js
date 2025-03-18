@@ -1,5 +1,4 @@
-import React, { useEffect, useState } from 'react';
-import { jwtDecode } from 'jwt-decode';
+import React, { useEffect, useState, useMemo } from 'react';
 import { Link as RouterLink, useLocation, Link, useNavigate } from "react-router-dom";
 import { scroller } from "react-scroll";
 import axios from '../../api/backend/index';
@@ -27,66 +26,48 @@ const Navbar = () => {
         }
     };
 
-    const checkLoginStatus = () => {
+    const loginStatus = useMemo(() => {
         const token = localStorage.getItem("Authorization");
-
         if (token) {
             try {
-                const decodedToken = jwtDecode(token);
-                setIsLoggedIn(true);
-                setUsername(decodedToken.name || "User");
-                setUserType(decodedToken.role ? decodedToken.role.toLowerCase() : "");
-                
+                const decodedToken = JSON.parse(atob(token.split(".")[1]));
+                return {
+                    isLoggedIn: true,
+                    username: decodedToken.name || "User",
+                    userType: decodedToken.role ? decodedToken.role.toLowerCase() : "",
+                };
             } catch (error) {
                 console.error("Invalid token:", error);
-                setIsLoggedIn(false);
-                setUsername("");
-                setUserType("");
-            }
-        } else {
-            setIsLoggedIn(false);
-            setUsername("");
-            setUserType("");
-        }
-    };
-
-    const fetchShippedOrdersCount = async () => {
-        if (isLoggedIn && userType === 'customer') {
-            try {
-                const response = await axios.get('/order/shipped-count', {
-                    headers: {
-                        'Authorization': localStorage.getItem('Authorization'),
-                        'Content-Type': 'application/json'
-                    }
-                });
-                setPendingConfirmations(response.data.shippedCount);
-            } catch (error) {
-                console.error('Error fetching shipped orders count:', error);
+                return { isLoggedIn: false, username: "", userType: "" };
             }
         }
-    };
-
-    useEffect(() => {
-        checkLoginStatus();
-        fetchShippedOrdersCount();
-
-        const handleStorageChange = () => {
-            checkLoginStatus();
-            fetchShippedOrdersCount();
-        };
-
-        window.addEventListener("loginStatusChange", handleStorageChange);
-
-        return () => {
-            window.removeEventListener("loginStatusChange", handleStorageChange);
-        };
+        return { isLoggedIn: false, username: "", userType: "" };
     }, []);
 
     useEffect(() => {
+        const { isLoggedIn, username, userType } = loginStatus;
+        setIsLoggedIn(isLoggedIn);
+        setUsername(username);
+        setUserType(userType);
+    }, [loginStatus]);
+
+    useEffect(() => {
         if (isLoggedIn && userType === 'customer') {
+            const fetchShippedOrdersCount = async () => {
+                try {
+                    const response = await axios.get('/order/shipped-count', {
+                        headers: {
+                            'Authorization': localStorage.getItem('Authorization'),
+                        },
+                    });
+                    setPendingConfirmations(response.data.shippedCount || 0);
+                } catch (error) {
+                    console.error('Error fetching shipped orders count:', error);
+                }
+            };
             fetchShippedOrdersCount();
         }
-    }, [isLoggedIn, userType, pendingConfirmations]);
+    }, [isLoggedIn, userType]);
 
     const handleLogout = () => {
         Swal.fire({
@@ -95,39 +76,34 @@ const Navbar = () => {
             icon: 'warning',
             showCancelButton: true,
             confirmButtonText: 'Yes, log out',
-            cancelButtonText: 'Cancel'
+            cancelButtonText: 'Cancel',
         }).then((result) => {
             if (result.isConfirmed) {
-                navigate("/");
-                window.location.reload();
                 localStorage.clear();
+                navigate("/");
                 setIsLoggedIn(false);
-                window.dispatchEvent(new Event("loginStatusChange"));
             }
         });
     };
 
     const renderDropdownOptions = () => {
-        const options = [
-            <Link key="profile" to="/profile">Profile</Link>
-        ];
-
-        if (userType === 'admin') {
-            options.push(<Link key="admin" to="/admin">Admin Menu</Link>);
-        } else if (userType === 'customer') {
+        const options = [<Link key="profile" to="/profile">Profile</Link>];
+        if (userType === 'admin') options.push(<Link key="admin" to="/admin">Admin Menu</Link>);
+        if (userType === 'customer') {
             options.push(
                 <Link key="myorder" to="/myorder">
                     My Orders {pendingConfirmations > 0 && <span className="text-success">({pendingConfirmations})</span>}
                 </Link>
             );
-        } else if (userType === 'artist') {
-            options.push(<Link key="artist-menu" to="/artist-menu">Artist Menu</Link>);
+            // TAMBAHAN "MY REQUEST" DI SINI
+            options.push(
+                <Link key="myrequest" to="/myrequestart">
+                    My Request
+                </Link>
+            );
         }
-
-        options.push(
-            <button key="logout" onClick={handleLogout}>Log Out</button>
-        );
-
+        if (userType === 'artist') options.push(<Link key="artist-menu" to="/artist-menu">Artist Menu</Link>);
+        options.push(<button key="logout" onClick={handleLogout}>Log Out</button>);
         return options;
     };
 
@@ -135,7 +111,7 @@ const Navbar = () => {
         <nav className="navbar-container">
             <div className="logo-container">
                 <RouterLink to="/" onClick={() => scrollToSection("homeSection")}>
-                    <img src={logo} alt="Mandalika Art Logo" className="logo" />
+                    <img src={logo} alt="Mandalika Art Logo" className="logo" width="50" height="50" />
                 </RouterLink>
                 <div className="brand-info">
                     <span className="brand-name">MANDALIKA</span>
@@ -143,31 +119,14 @@ const Navbar = () => {
                 </div>
             </div>
             <ul className="nav-links">
-                <li>
-                    <RouterLink to="/" onClick={() => scrollToSection("homeSection")}>
-                        Home
-                    </RouterLink>
-                </li>
-                <li>
-                    <RouterLink to="/" onClick={() => scrollToSection("artworkSection")}>
-                        Artwork
-                    </RouterLink>
-                </li>
-                <li>
-                    <RouterLink to="/" onClick={() => scrollToSection("artistSection")}>
-                        Artist
-                    </RouterLink>
-                </li>
-                <li>
-                    <RouterLink to="/" onClick={() => scrollToSection("contactSection")}>
-                        Contact
-                    </RouterLink>
-                </li>
+                <li><RouterLink to="/" onClick={() => scrollToSection("homeSection")}>Home</RouterLink></li>
+                <li><RouterLink to="/" onClick={() => scrollToSection("artworkSection")}>Artwork</RouterLink></li>
+                <li><RouterLink to="/" onClick={() => scrollToSection("artistSection")}>Artist</RouterLink></li>
+                <li><RouterLink to="/" onClick={() => scrollToSection("contactSection")}>Contact</RouterLink></li>
             </ul>
             {isLoggedIn ? (
                 <div className="dropdown">
-                    <button className="dropbtn">Welcome, {username} {pendingConfirmations > 0 && <span className="text-success">({pendingConfirmations})</span>}
-                    </button>
+                    <button className="dropbtn">Welcome, {username} {pendingConfirmations > 0 && <span className="text-success">({pendingConfirmations})</span>}</button>
                     <div className="dropdown-content">
                         {renderDropdownOptions()}
                     </div>

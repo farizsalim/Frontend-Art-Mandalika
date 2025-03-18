@@ -3,15 +3,13 @@ import axios from '../../api/backend/index';
 import Swal from 'sweetalert2';
 import { useNavigate, useLocation } from 'react-router-dom';
 import Spinner from '../../component/Spinner/SpinnerComponent'; // Import Spinner
-import './OrderPage.css';
+import './OrderArtworkCustom.css'; // Import CSS untuk styling
 
-const OrderPage = () => {
+const OrderArtworkCustom = () => {
     const navigate = useNavigate();
     const location = useLocation();
-    const { artwork: artworkData, artworkDetail } = location.state || {};
+    const { artwork } = location.state || {}; // Mengambil data artwork dari state
 
-    const [artwork, setArtwork] = useState(artworkData || null);
-    const [artworkDetailData, setArtworkDetailData] = useState(artworkDetail || null);
     const [addresses, setAddresses] = useState([]);
     const [shippingCosts, setShippingCosts] = useState([]);
     const [selectedAddress, setSelectedAddress] = useState('');
@@ -28,12 +26,14 @@ const OrderPage = () => {
         cardless_credit: ['Akulaku']
     };
 
+    console.log('Artwork ID_Detail:', artwork.ID_Detail);
+
     useEffect(() => {
-        if (!artwork || !artworkDetailData) {
+        if (!artwork) {
             Swal.fire({
                 icon: 'error',
                 title: 'Error',
-                text: 'Artwork or artwork detail data is missing. Please go back and try again.',
+                text: 'Artwork data is missing. Please go back and try again.',
             }).then(() => {
                 navigate(-1);
             });
@@ -43,12 +43,14 @@ const OrderPage = () => {
         const fetchAddresses = async () => {
             setLoading(true);
             try {
+                console.log('Fetching addresses...');
                 const response = await axios.get('/addressapi/address', {
                     headers: {
                         'Authorization': localStorage.getItem('Authorization'),
                         'Content-Type': 'application/json'
                     }
                 });
+                console.log('Addresses fetched successfully:', response.data);
                 setAddresses(response.data);
             } catch (error) {
                 console.error('Error fetching addresses:', error);
@@ -63,7 +65,7 @@ const OrderPage = () => {
         };
 
         fetchAddresses();
-    }, [artwork, artworkDetailData, navigate]);
+    }, [artwork, navigate]);
 
     const handleAddressChange = async (e) => {
         const addressId = e.target.value;
@@ -76,21 +78,22 @@ const OrderPage = () => {
     };
 
     const handleGetShippingCost = async (addressId) => {
-        if (!addressId || !artworkDetailData) {
+        if (!addressId || !artwork) {
             Swal.fire({
                 icon: 'warning',
                 title: 'Select Address',
-                text: 'Please select an address and ensure artwork detail data is loaded.',
+                text: 'Please select an address and ensure artwork data is loaded.',
             });
             return;
         }
 
         setLoadingCourier(true); // Set loading for courier
         try {
+            console.log('Fetching shipping cost...');
             const payload = {
-                ID_Origin: 1,
+                ID_Origin: 1, // Ganti dengan ID asal yang sesuai
                 ID_Address: addressId,
-                ID_Detail: artworkDetailData.ID_Detail,
+                ID_Detail: artwork.ID_Detail, // Menggunakan ID dari artwork custom
             };
 
             const response = await axios.post('/shipment/data/cost', payload, {
@@ -99,6 +102,7 @@ const OrderPage = () => {
                     'Content-Type': 'application/json'
                 }
             });
+            console.log('Shipping cost fetched successfully:', response.data.data);
             setShippingCosts(response.data.data);
         } catch (error) {
             console.error('Error fetching shipping cost:', error);
@@ -142,6 +146,7 @@ const OrderPage = () => {
             if (result.isConfirmed) {
                 setLoading(true);
                 try {
+                    console.log('Creating shipment...');
                     const selectedShippingObject = shippingCosts.find(cost => cost.courier === selectedCourier);
                     const selectedShippingDetail = selectedShippingObject.costDetails[selectedShippingOption];
 
@@ -158,29 +163,30 @@ const OrderPage = () => {
                             'Content-Type': 'application/json'
                         }
                     });
+                    console.log('Shipment created successfully:', shipmentResponse.data);
 
                     const { ID_Shipment } = shipmentResponse.data;
 
+                    // Payload untuk order sesuai dengan format yang diinginkan
                     const orderPayload = {
-                        ID_User: localStorage.getItem('userId'),
-                        ID_Address: selectedAddress,
-                        ID_Shipment: ID_Shipment,
-                        TotalPrice: selectedShippingDetail.value,
-                        OrderStatus: 'pending',
-                        ID_Artwork: artwork.ID_Artwork,
-                        ID_ArtworkDetail: artworkDetailData.ID_Detail,
-                        Title: artwork.Title
+                        ID_ArtworkCustom: artwork.ID_ArtworkCustom, // Menggunakan ID dari artwork custom
+                        ID_ArtworkDetail: artwork.ID_Detail, // Menggunakan ID detail artwork
+                        ID_Address: parseInt(selectedAddress, 10), // ID alamat yang dipilih
+                        ID_Shipment: ID_Shipment // ID pengiriman yang diterima
                     };
 
-                    const orderResponse = await axios.post('/order/data', orderPayload, {
+                    console.log('Creating order with payload:', orderPayload);
+                    const orderResponse = await axios.post('http://localhost:8000/ARTM/api/order/datacustom', orderPayload, {
                         headers: {
                             'Authorization': localStorage.getItem('Authorization'),
                             'Content-Type': 'application/json'
                         }
                     });
+                    console.log('Order created successfully:', orderResponse.data);
 
                     const { ID_Order } = orderResponse.data;
 
+                    // Lanjutkan dengan proses pembayaran
                     const paymentPayload = {
                         transaction_details: {
                             order_id: ID_Order
@@ -202,12 +208,14 @@ const OrderPage = () => {
                         };
                     }
 
-                    await axios.post('/midtrans/create-payment', paymentPayload, {
+                    console.log('Creating payment with payload:', paymentPayload);
+                    await axios.post('/midtrans/create-payment-custom', paymentPayload, {
                         headers: {
                             'Authorization': localStorage.getItem('Authorization'),
                             'Content-Type': 'application/json'
                         }
                     });
+                    console.log('Payment created successfully');
 
                     Swal.fire({
                         icon: 'success',
@@ -231,8 +239,8 @@ const OrderPage = () => {
         });
     };
 
-    if (!artwork || !artworkDetailData) {
-        return <div>Loading...</div>;
+    if (!artwork) {
+        return <div>Loading...</div>; // Menangani kasus jika tidak ada data
     }
 
     return (
@@ -241,9 +249,9 @@ const OrderPage = () => {
             {/* ArtRequestDetails Section */}
             <div className="order-card">
                 <h3>Art Request</h3>
-                <p><strong>Artwork:</strong> {artwork.Title}</p>
-                <p><strong>Size:</strong> {artworkDetailData.Width}cm x {artworkDetailData.Height}cm</p>
-                <p><strong>Price:</strong> Rp {parseFloat(artworkDetailData.Price).toLocaleString('id-ID')}</p>
+                <p><strong>Artwork:</strong> {artwork.Title_artwork}</p>
+                <p><strong>Description:</strong> {artwork.Description}</p>
+                <p><strong>Price:</strong> Rp {parseFloat(artwork.Price).toLocaleString('id-ID')}</p>
             </div>
 
             {/* Address Selector Section */}
@@ -326,4 +334,4 @@ const OrderPage = () => {
     );
 };
 
-export default OrderPage;
+export default OrderArtworkCustom;

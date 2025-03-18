@@ -6,6 +6,8 @@ import './MyOrder.css';
 
 const MyOrderPage = () => {
     const [orders, setOrders] = useState([]);
+    const [currentPage, setCurrentPage] = useState(1);
+    const ordersPerPage = 10;
 
     useEffect(() => {
         const fetchOrders = async () => {
@@ -13,44 +15,18 @@ const MyOrderPage = () => {
                 const response = await axios.get('/order/data', {
                     headers: {
                         'Authorization': localStorage.getItem('Authorization'),
-                        'Content-Type': 'application/json'
-                    }
+                        'Content-Type': 'application/json',
+                    },
                 });
 
-                // Enrich orders with artwork title and shipment tracking number
-                const enrichedOrders = await Promise.all(response.data.map(async (order) => {
-                    try {
-                        // Fetch artwork title
-                        const artRequestResponse = await axios.get(`/artrequestArtwork/request/artwork/${order.ID_ArtRequest}`, {
-                            headers: {
-                                'Authorization': localStorage.getItem('Authorization'),
-                                'Content-Type': 'application/json'
-                            }
-                        });
-                        const title = artRequestResponse.data.Title_Artrequest;
-
-                        // Fetch shipment tracking number
-                        let trackingNumber = 'N/A';
-                        if (order.ID_Shipment) {
-                            const shipmentResponse = await axios.get(`/shipment/data/${order.ID_Shipment}`, {
-                                headers: {
-                                    'Authorization': localStorage.getItem('Authorization'),
-                                    'Content-Type': 'application/json'
-                                }
-                            });
-                            trackingNumber = shipmentResponse.data.TrackingNumber || 'Tracking number not obtained.';
-                        }
-
-                        return { ...order, Title_Artwork: title, TrackingNumber: trackingNumber };
-                    } catch (error) {
-                        console.error(`Error fetching data for order ${order.ID_Order}:`, error);
-                        return { ...order, Title_Artwork: 'N/A', TrackingNumber: 'N/A' };
-                    }
-                }));
-
-                setOrders(enrichedOrders);
+                // Sort by latest order
+                const sortedOrders = response.data.sort((a, b) => 
+                    new Date(b.CreatedAt) - new Date(a.CreatedAt)
+                );
+                setOrders(sortedOrders);
             } catch (error) {
                 console.error('Error fetching orders:', error);
+                Swal.fire('Error', 'Gagal memuat data order', 'error');
             }
         };
 
@@ -59,180 +35,171 @@ const MyOrderPage = () => {
 
     const getStatusColor = (status) => {
         switch (status.toLowerCase()) {
-            case 'pending':
-                return 'text-warning';
-            case 'completed':
-                return 'text-success';
-            case 'cancelled':
-                return 'text-danger';
+            case 'pending': return 'text-warning';
+            case 'completed': return 'text-success';
+            case 'cancelled': 
+            case 'cancel': return 'text-danger';
             case 'paid':
             case 'processing':
-            case 'shipped':
-                return 'text-primary';
-            case 'cancel':
-                return 'text-danger';
-            default:
-                return 'text-dark';
+            case 'shipped': return 'text-primary';
+            default: return 'text-dark';
         }
     };
 
     const handleConfirmOrderReceived = async (orderId) => {
         try {
-            const response = await axios.put(`/order/data/${orderId}/confirm`, {}, {
+            await axios.put(`/order/data/${orderId}/confirm`, {}, {
                 headers: {
                     'Authorization': localStorage.getItem('Authorization'),
-                    'Content-Type': 'application/json'
-                }
+                },
             });
 
-            Swal.fire({
-                icon: 'success',
-                title: 'Order Confirmed',
-                text: response.data.message,
-                confirmButtonText: 'OK'
-            });
+            // Update order status
+            setOrders(prev => prev.map(order => 
+                order.ID_Order === orderId ? {...order, OrderStatus: 'completed'} : order
+            ));
 
-            // Refresh orders after confirmation
-            setOrders((prevOrders) => 
-                prevOrders.map(order => 
-                    order.ID_Order === orderId ? { ...order, OrderStatus: 'completed' } : order
-                )
-            );
+            Swal.fire('Success', 'Order confirmed successfully', 'success');
         } catch (error) {
-            console.error('Error confirming order:', error);
-            Swal.fire({
-                icon: 'error',
-                title: 'Error',
-                text: 'Failed to confirm order. Please try again.',
-                confirmButtonText: 'OK'
-            });
+            Swal.fire('Error', 'Gagal mengonfirmasi order', 'error');
         }
     };
 
     const handleCancelOrder = async (orderId) => {
-        try {
-            const result = await Swal.fire({
-                title: 'Are you sure?',
-                text: "Do you really want to cancel this order?",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#d33',
-                cancelButtonColor: '#3085d6',
-                confirmButtonText: 'Yes, cancel it!'
-            });
-    
-            if (result.isConfirmed) {
-                const response = await axios.patch(`/order/data/${orderId}/cancel`, {}, {
+        const result = await Swal.fire({
+            title: 'Cancel Order?',
+            text: "You won't be able to revert this!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Yes, cancel it!'
+        });
+
+        if (result.isConfirmed) {
+            try {
+                await axios.patch(`/order/data/${orderId}/cancel`, {}, {
                     headers: {
                         'Authorization': localStorage.getItem('Authorization'),
-                        'Content-Type': 'application/json'
-                    }
+                    },
                 });
-    
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Order Canceled',
-                    text: response.data.message,
-                    confirmButtonText: 'OK'
-                });
-    
-                // Update orders to reflect cancellation
-                setOrders((prevOrders) =>
-                    prevOrders.map(order =>
-                        order.ID_Order === orderId ? { ...order, OrderStatus: 'cancel' } : order
-                    )
-                );
+
+                // Update order status
+                setOrders(prev => prev.map(order => 
+                    order.ID_Order === orderId ? {...order, OrderStatus: 'cancelled'} : order
+                ));
+
+                Swal.fire('Cancelled!', 'Order has been cancelled.', 'success');
+            } catch (error) {
+                Swal.fire('Error!', 'Gagal membatalkan order', 'error');
             }
-        } catch (error) {
-            console.error('Error canceling order:', error);
-            Swal.fire({
-                icon: 'error',
-                title: 'Error',
-                text: 'Failed to cancel order. Please try again.',
-                confirmButtonText: 'OK'
-            });
         }
     };
-    
+
+    // Pagination logic
+    const indexOfLastOrder = currentPage * ordersPerPage;
+    const indexOfFirstOrder = indexOfLastOrder - ordersPerPage;
+    const currentOrders = orders.slice(indexOfFirstOrder, indexOfLastOrder);
+    const totalPages = Math.ceil(orders.length / ordersPerPage);
 
     return (
-        <div className="myorder-page-container container mt-5">
-            <h1 className="myorder-page-title mb-4">My Orders</h1>
+        <div className="container mt-5 myorder-container">
+            <h1 className="mb-4 text-center">My Orders</h1>
+            
             {orders.length === 0 ? (
-                <div className="alert alert-info" role="alert">
-                    No orders found.
+                <div className="alert alert-info text-center">
+                    No orders found
                 </div>
             ) : (
-                <div className="table-responsive">
-                    <table className="table table-bordered table-hover">
-                        <thead className="thead-dark">
-                            <tr>
-                                <th>Artwork Title</th>
-                                <th>Total Price</th>
-                                <th>Status</th>
-                                <th>Order Date</th>
-                                <th>Tracking Number</th>
-                                <th>Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {orders
-                                .sort((a, b) => {
-                                    // Tempatkan "completed" di bagian bawah
-                                    if (a.OrderStatus.toLowerCase() === 'completed') return 1;
-                                    if (b.OrderStatus.toLowerCase() === 'completed') return -1;
-                                    return 0;
-                                })
-                                .map((order) => (
+                <>
+                    <div className="table-responsive">
+                        <table className="table table-hover align-middle">
+                            <thead className="table-dark">
+                                <tr>
+                                    <th>Artwork</th>
+                                    <th>Total Price</th>
+                                    <th>Status</th>
+                                    <th>Order Date</th>
+                                    <th>Tracking</th>
+                                    <th>Courier</th>
+                                    <th>Service</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {currentOrders.map((order) => (
                                     <tr key={order.ID_Order}>
-                                        <td>{order.Title_Artwork}</td>
-                                        <td>Rp {parseFloat(order.TotalPrice).toLocaleString('id-ID')}</td>
-                                        <td className={getStatusColor(order.OrderStatus)}>{order.OrderStatus}</td>
+                                        {/* FIXED: Menampilkan ArtworkTitle dari response */}
+                                        <td>{order.ArtworkTitle}</td>
+                                        <td>Rp {order.TotalPrice}</td>
+                                        <td className={`fw-bold ${getStatusColor(order.OrderStatus)}`}>
+                                            {order.OrderStatus}
+                                        </td>
                                         <td>{new Date(order.CreatedAt).toLocaleDateString('id-ID')}</td>
-                                        <td>{order.TrackingNumber}</td>
+                                        <td>{order.TrackingNumber || 'N/A'}</td>
+                                        <td>{order.Courier || 'N/A'}</td>
+                                        <td>{order.Service || 'N/A'}</td>
                                         <td>
-                                            {order.OrderStatus.toLowerCase() === 'pending' ? (
-                                                <>
-                                                    <button
+                                            {order.OrderStatus.toLowerCase() === 'pending' && (
+                                                <div className="d-flex gap-2">
+                                                    <button 
                                                         className="btn btn-info btn-sm"
-                                                        onClick={() => handleViewOrder(order.ID_Order)}
+                                                        onClick={() => window.location.href = `/payment/${order.ID_Order}`}
                                                     >
                                                         View
                                                     </button>
-                                                    <button
-                                                        className="btn btn-danger btn-sm ml-2"
+                                                    <button 
+                                                        className="btn btn-danger btn-sm"
                                                         onClick={() => handleCancelOrder(order.ID_Order)}
                                                     >
                                                         Cancel
                                                     </button>
-                                                </>
-                                            ) : order.OrderStatus.toLowerCase() === 'completed' ? (
-                                                <span className="text-success">Completed</span>
-                                            ) : order.OrderStatus.toLowerCase() === 'shipped' ? (
+                                                </div>
+                                            )}
+
+                                            {order.OrderStatus.toLowerCase() === 'shipped' && (
                                                 <button
                                                     className="btn btn-success btn-sm"
                                                     onClick={() => handleConfirmOrderReceived(order.ID_Order)}
                                                 >
                                                     Confirm Received
                                                 </button>
-                                            ) : order.OrderStatus.toLowerCase() === 'cancelled' ?(
-                                                <span className="text-danger">cancelled</span>
-                                            ) : (
-                                                <span className="text-primary">The artwork is in progress.</span>
+                                            )}
+
+                                            {['completed', 'cancelled'].includes(order.OrderStatus.toLowerCase()) && (
+                                                <span className="badge bg-secondary">
+                                                    {order.OrderStatus}
+                                                </span>
                                             )}
                                         </td>
                                     </tr>
                                 ))}
-                        </tbody>
-                    </table>
-                </div>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    {/* Pagination */}
+                    <nav className="mt-4">
+                        <ul className="pagination justify-content-center">
+                            {Array.from({ length: totalPages }, (_, i) => (
+                                <li 
+                                    key={i + 1} 
+                                    className={`page-item ${currentPage === i + 1 ? 'active' : ''}`}
+                                >
+                                    <button 
+                                        className="page-link" 
+                                        onClick={() => setCurrentPage(i + 1)}
+                                    >
+                                        {i + 1}
+                                    </button>
+                                </li>
+                            ))}
+                        </ul>
+                    </nav>
+                </>
             )}
         </div>
     );
-};
-
-const handleViewOrder = (orderId) => {
-    window.location.href = `/payment/${orderId}`;
 };
 
 export default MyOrderPage;

@@ -1,0 +1,68 @@
+.artist-detail-container {  
+    padding: 20px;  
+    max-width: 800px;  
+    margin: auto;  
+    text-align: center;  
+    background-color: #f9f9f9;  
+    border-radius: 8px;  
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);  
+}  
+  
+.artist-detail-image {  
+    width: 150px; /* Ukuran foto profil */  
+    height: 150px; /* Ukuran foto profil */  
+    border-radius: 50%;  
+    object-fit: cover;  
+    margin-bottom: 20px;  
+    border: 4px solid #fff;  
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);  
+}  
+  
+.artist-bio {  
+    font-size: 1.2em;  
+    line-height: 1.5;  
+    margin-bottom: 10px;  
+}  
+  
+.artist-email, .artist-phone {  
+    font-size: 1em;  
+    color: #555;  
+    margin: 5px 0;  
+}  
+  
+.artworks-grid {  
+    display: grid;  
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); /* Responsive grid */  
+    gap: 15px;  
+    margin-top: 20px;  
+}  
+  
+.artwork-item {  
+    border: 1px solid #ddd;  
+    border-radius: 5px;  
+    overflow: hidden;  
+    transition: transform 0.3s;  
+    background-color: #fff;  
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);  
+}  
+  
+.artwork-item:hover {  
+    transform: scale(1.05);  
+}  
+  
+.artwork-image {  
+    width: 100%;  
+    height: 150px; /* Ukuran gambar artwork */  
+    object-fit: cover;  
+}  
+  
+.artwork-title {  
+    padding: 10px;  
+    font-weight: bold;  
+}  
+  
+.artwork-status {  
+    padding: 0 10px 10px;  
+    font-size: 14px;  
+    color: #888; /* Warna untuk status */  
+}  
